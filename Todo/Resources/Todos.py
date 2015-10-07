@@ -1,4 +1,4 @@
-from flask_restful import reqparse, abort, Api, Resource
+﻿from flask_restful import reqparse, abort, Api, Resource
 from Models.todoModel import db, Todos, Timestamp
 
 
@@ -13,8 +13,24 @@ def abort_if_todo_doesnt_exist(todo_id):
 class Todo(Resource):
     def get(self, todo_id):
         abort_if_todo_doesnt_exist(todo_id)
-        res = Todos.query.filter_by(todo_id=todo_id).first()
-        return {"todo_id":res.todo_id,"task":res.task},200
+        task = Todos.query.filter_by(todo_id=todo_id).first()
+
+        resultList = []
+        resultList.append({"todo_id":task.todo_id,"task":task.task} )
+
+        timestamps = Timestamp.query.all()
+        
+        if (len(timestamps)>0): 
+            resultList.append({"lastUpdated" : timestamps[-1].timestamp.isoformat()})
+        else:
+            time = Todos_timestamp()
+            db.session.add(time)
+            db.session.commit()
+            timestamps = Timestamp.query.all()
+            resultList.append({"lastUpdated" : timestamps[-1].timestamp.isoformat()})
+
+        return resultList, 200
+
 
     def delete(self, todo_id):
         abort_if_todo_doesnt_exist(todo_id)
@@ -31,7 +47,22 @@ class Todo(Resource):
         time = Timestamp()
         db.session.add(time)
         db.session.commit()
-        return {"todo_id":task.todo_id,"task":task.task}, 201
+
+        resultList = []
+        resultList.append({"todo_id":task.todo_id,"task":task.task} )
+
+        timestamps = Timestamp.query.all()
+        
+        if (len(timestamps)>0): 
+            resultList.append({"lastUpdated" : timestamps[-1].timestamp.isoformat()})
+        else:
+            time = Todos_timestamp()
+            db.session.add(time)
+            db.session.commit()
+            timestamps = Timestamp.query.all()
+            resultList.append({"lastUpdated" : timestamps[-1].timestamp.isoformat()})
+
+        return resultList, 201
 
 
 # TodoList
@@ -65,5 +96,20 @@ class TodoList(Resource):
         time = Timestamp()
         db.session.add(time)
         db.session.commit()
-        res = Todos.query.filter_by(todo_id=todo_id).first()
-        return {"todo_id":res.todo_id,"task":res.task},201
+        task = Todos.query.filter_by(todo_id=todo_id).first()
+
+        resultList = []
+        resultList.append({"todo_id":task.todo_id,"task":task.task} )
+
+        timestamps = Timestamp.query.all()
+        
+        if (len(timestamps)>0): 
+            resultList.append({"lastUpdated" : timestamps[-1].timestamp.isoformat()})
+        else:
+            time = Todos_timestamp()
+            db.session.add(time)
+            db.session.commit()
+            timestamps = Timestamp.query.all()
+            resultList.append({"lastUpdated" : timestamps[-1].timestamp.isoformat()})
+
+        return resultList, 201
